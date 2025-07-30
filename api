@@ -1,0 +1,33 @@
+export default async function handler(req, res) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Метод не разрешён" });
+  }
+
+  // Данные из YCLIENTS
+  const TOKEN = "b5fbe7816a36ef0be8c3057bc7f42d71"; // токен YCLIENTS
+  const COMPANY_ID = "1409058"; // ID вашей компании YCLIENTS
+
+  const { phone } = req.query;
+
+  if (!phone) {
+    return res.status(400).json({ error: "Введите номер телефона" });
+  }
+
+  // Чистим номер телефона
+  const cleanPhone = phone.replace(/\D/g, "");
+  const apiUrl = `https://api.yclients.com/api/v1/records/${COMPANY_ID}?phone=${cleanPhone}`;
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${TOKEN}`,
+      },
+    });
+
+    const data = await response.json();
+    return res.status(200).json(data);
+  } catch (error) {
+    return res.status(500).json({ error: "Ошибка соединения с YCLIENTS" });
+  }
+}
